@@ -1,23 +1,13 @@
-# -*- coding: utf-8 -*-
-"""
-Created on Mon Apr  8 03:17:12 2019
-
-@author: ASUSNB
-"""
 
 import seaborn as sns
 import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd 
-
-file ='train.xlsx'
-sales = pd.read_excel(file)
-sales.info()
-sales.isnull().sum()
-
-sales.head(10)
-
-
+import os
+from pandas import set_option
+import warnings
+warnings.filterwarnings("ignore")
+from IPython.display import display_html
 plt.rcParams['patch.force_edgecolor'] = True
 plt.rcParams['patch.facecolor'] = 'b'
 
@@ -37,91 +27,104 @@ for c in colors:
 vd = list(vd)
 
 
-###########################################################
-sales['Item_Type'].value_counts()
-sales['Outlet_Type'].value_counts()
+# In[9]:
+
+
+file ='train.xlsx'
+sales = pd.read_excel(file)
+sales.info()
+sales.head(10)
+
+
+# In[12]:
+
+
+sales.isnull().sum()
+
+
+# In[17]:
+
+
+
+
+
+# In[24]:
+
 
 fig, ax = plt.subplots(3,2, figsize=(20,20))
 sns.barplot(x='Item_Fat_Content', y='index', data = sales['Item_Fat_Content'].value_counts().reset_index(), ax=ax[0,0])
-ax[0,0].set_title('Number of pokemon by Type 1')
-ax[0,0].set_ylabel('Pokemon Type1')
-ax[0,0].set_xlabel('Number of Pokemon for type 1')
+ax[0,0].set_title('Number of instances in Fat Content')
+ax[0,0].set_ylabel('Item Fat Content ')
+ax[0,0].set_xlabel('Number of variables in Fat Content')
 
 sns.barplot(x='Item_Type', y='index', data = sales['Item_Type'].value_counts().reset_index(), ax=ax[0,1])
-ax[0,1].set_title('Number of pokemon by Type 1')
-ax[0,1].set_ylabel('Pokemon Type1')
-ax[0,1].set_xlabel('Number of Pokemon for type 1')
+ax[0,1].set_title('Total Amount of each Item')
+ax[0,1].set_ylabel('Item Type')
+ax[0,1].set_xlabel('Total Amount of each Item')
 
 
 sns.barplot(x='Outlet_Type', y='index', data = sales['Outlet_Type'].value_counts().reset_index(), ax=ax[1,0])
-ax[1,0].set_title('Number of pokemon by Type 2')
-ax[1,0].set_ylabel('Pokemon Type1')
-ax[1,0].set_xlabel('Number of Pokemon')
+ax[1,0].set_title('Number of Outlet by Type ')
+ax[1,0].set_ylabel('Outlet Type')
+ax[1,0].set_xlabel('Number of Outlet by Type')
 
 
 sns.barplot(x='Outlet_Size', y='index', data = sales['Outlet_Size'].value_counts().reset_index(), ax=ax[1,1])
-ax[1,1].set_title('Number of pokemon by Type 2')
-ax[1,1].set_ylabel('Pokemon Type1')
-ax[1,1].set_xlabel('Number of Pokemon')
+ax[1,1].set_title('Number of Outlet by Size')
+ax[1,1].set_ylabel('Outlet Size')
+ax[1,1].set_xlabel('Number of Outlet by Size')
 
 
-sns.barplot(x='Outlet_Identifier', y='index', data = sales['Outlet_Identifier'].value_counts().reset_index(), ax=ax[2,0])
-ax[2,0].set_title('Number of pokemon by Type 2')
-ax[2,0].set_ylabel('Pokemon Type1')
-ax[2,0].set_xlabel('Number of Pokemon')
+sns.distplot( sales["Item_Visibility"] , color="black", label="Item_Visibility",ax=ax[2,0])
+
 
 sns.barplot(x='Outlet_Location_Type', y='index', data = sales['Outlet_Location_Type'].value_counts().reset_index(), ax=ax[2,1])
-ax[2,1].set_title('Number of pokemon by Type 2')
-ax[2,1].set_ylabel('Pokemon Type1')
-ax[2,1].set_xlabel('Number of Pokemon')
+ax[2,1].set_title('Number of Outlet Location Type')
+ax[2,1].set_ylabel('Outlet Location Type')
+ax[2,1].set_xlabel('Number of Outlet Location Type')
 
 
 plt.tight_layout()
 plt.show()
 
-##############################################################################
-# sales and visibility relationship , creating data sets to understand the relationship 
-df1 = sales[['Item_Identifier','Item_Visibility','Item_Outlet_Sales']].sort_values(by=['Item_Outlet_Sales','Item_Visibility'], ascending=[True,False]).head(10)
-df2 = sales[['Item_Identifier','Item_Visibility','Item_Outlet_Sales']].sort_values(by=['Item_Outlet_Sales','Item_Visibility'], ascending=[False,True]).head(10)
 
-df1.set_index('Item_Identifier', inplace=True)
-df1.index.rename('10 most visible and higher sales  ', inplace=True)
-df2.set_index('Item_Identifier', inplace=True)
-df2.index.rename('10 least visible ', inplace=True)
+# In[25]:
 
-sns.distplot( sales["Item_Visibility"] , color="black", label="Item_Visibility")
+
 sns.distplot( sales["Item_Outlet_Sales"] , color="red", label="Sales")
-plt.legend()
 
+
+# In[26]:
 
 
 sales.plot.scatter(x='Item_Visibility', y='Item_Outlet_Sales',
                      figsize=(12, 6),
                      title='Product by Sales and Visibility')
 
+
+# In[27]:
+
+
 sales.plot.scatter(x='Item_Weight', y='Item_Visibility',
                      figsize=(12, 6),
                      title='Product by Weight and Visibility')
+
+
+# In[28]:
+
 
 sales.plot.scatter(x='Item_Outlet_Sales', y='Item_Weight',
                      figsize=(12, 6),
                      title='Product by Weight and Sales')
 
- 
+
+# In[29]:
 
 
-sns.distplot( sales["Item_Outlet_Sales"] , color="skyblue", label="Item_Outlet_Sales")
-sns.plt.legend()
- 
-
-##### preparing subsets: 
-
-## sales & fat relationship 
+## creating new columns called percentage of sales ofr better visuals
 sales['percentage_of_sales']= sales['Item_Outlet_Sales'] / sales['Item_Outlet_Sales'].sum()
 
-
-
-### outlet establishment year 
+### creating new columns called year of operation 
 
 sales['Outlet_Establishment_Year'].value_counts
 sales['year_of_operation'] = sales['Outlet_Establishment_Year'] - 1985
@@ -129,24 +132,20 @@ sales['year_of_operation'] = sales['Outlet_Establishment_Year'] - 1985
 sales['year_of_operation'].value_counts().plot.bar()
 
 
+# In[47]:
+
+
+# Which products sold more? 
+item_sales =  sales.groupby('Item_Type')['percentage_of_sales'].sum() # Preparing subset of data for chart
+a= item_sales.index.map(lambda x: str(x))
+b = item_sales.values
+
+fig,ax = plt.subplots(figsize = (60,30))
+sns.barplot(a,b, order=a, palette='viridis',ax=ax)
 
 
 
-
-
-####### price & product and sales relationship satılmamam nedenleri pricedan olabilir mi? 
-
-fig, ax = plt.subplots(2,2, figsize=(18,12))
-
-yok_yav =  sales.groupby('Item_Type')['percentage_of_sales'].sum() # Preparing subset of data for chart
-a= yok_yav.index.map(lambda x: str(x))
-b = yok_yav.values
-
-fig, ax = plt.subplots(1,2, figsize=(60,6))
-sns.barplot(a,b, order=a, palette='viridis',ax=ax[0])
-ax[0].set_xlabel('Steps required to hatch base egg')
-ax[0].set_ylabel('total sales')
-ax[0].set_title('Steps required to hatch base egg')
+# In[48]:
 
 
 ## price , sales, item type relationship 
@@ -195,7 +194,7 @@ for label, a, b in zip(label_vis_low, labels_vis_min['Item_Visibility'], labels_
         label, xy=(a, b), xytext=(14, 40), textcoords='offset points', ha='right', va='bottom',
         bbox=dict(boxstyle='round,pad=0.5', fc='gold', alpha=0.5),
         arrowprops=dict(arrowstyle = '->', connectionstyle='arc3,rad=0'))
-ax[0,0].set_title('Price & Sales Relationship per item category')
+ax[0,0].set_title('Visibility & Sales Relationship per item category')
 
 ##################3
 oper_sales = sales.groupby('year_of_operation')['percentage_of_sales'].sum() # Preparing subset of data for chart
@@ -203,37 +202,37 @@ x = oper_sales.index.map(lambda x: str(x))
 y = oper_sales.values
 
 sns.barplot(x,y, order=x, palette='viridis',ax=ax[0,1])
-ax[0,1].set_xlabel('Steps required to hatch base egg')
-ax[0,1].set_ylabel('total sales')
-ax[0,1].set_title('Steps required to hatch base egg')
+ax[0,1].set_xlabel('years of operation ')
+ax[0,1].set_ylabel('sum of % of sales')
+ax[0,1].set_title('Years of operation & Sales Relationship ')
 
 ######################
 
-yılan = sales.groupby('Outlet_Location_Type')['percentage_of_sales'].sum() # Preparing subset of data for chart
-a = yılan.index.map(lambda x: str(x))
-b = yılan.values
+loctype_sales = sales.groupby('Outlet_Location_Type')['percentage_of_sales'].sum() # Preparing subset of data for chart
+a = loctype_sales.index.map(lambda x: str(x))
+b = loctype_sales.values
 
 sns.barplot(a,b, order=a, palette='viridis',ax=ax[1,1])
-ax[1,1].set_xlabel('Steps required to hatch base egg')
-ax[1,1].set_ylabel('total sales')
-ax[1,1].set_title('Steps required to hatch base egg')
+ax[1,1].set_xlabel('Outlet Location Type')
+ax[1,1].set_ylabel('sum of % of sales')
+ax[1,1].set_title('Location Type & Sales Relationship')
 
 outlet_type_sales = sales.groupby('Outlet_Type')['percentage_of_sales'].sum() # Preparing subset of data for chart
 c= outlet_type_sales.index.map(lambda x: str(x))
 d = outlet_type_sales.values
 sns.barplot(c,d, order=c, palette='viridis',ax=ax[2,1])
-ax[2,1].set_xlabel('Steps required to hatch base egg')
-ax[2,1].set_ylabel('total sales')
-ax[2,1].set_title('Steps required to hatch base egg')
+ax[2,1].set_xlabel('Outlet Type')
+ax[2,1].set_ylabel('sum of % of sales')
+ax[2,1].set_title('Type of Outlet & Sales Relationship')
 
 
 outlet_type_sales = sales.groupby('Outlet_Identifier')['percentage_of_sales'].sum() # Preparing subset of data for chart
 e= outlet_type_sales.index.map(lambda x: str(x))
 f = outlet_type_sales.values
 sns.barplot(e,f, order=e, palette='viridis',ax=ax[2,0])
-ax[2,0].set_xlabel('Steps required to hatch base egg')
-ax[2,0].set_ylabel('total sales')
-ax[2,0].set_title('Steps required to hatch base egg')
+ax[2,0].set_xlabel('Outlets')
+ax[2,0].set_ylabel('sum of % of sales')
+ax[2,0].set_title('Performance of Each Outlet')
 
 
 
@@ -241,44 +240,33 @@ plt.tight_layout()
 plt.show()
 
 
-################################################################
-
-sns.lmplot( x="year_of_operation", y="Item_Outlet_Sales", data=sales, fit_reg=False, hue='Outlet_Location_Type', legend=False)
-plt.legend(loc='lower right')
-
-
-
-##########################################################################
-## Data Engineering 
-sales.isnull().sum()
+# In[49]:
 
 
 sales.hist(bins=50, figsize=(20,15))
 plt.show()
 
 
-sales_2 = sales.copy()
+# In[52]:
 
-corr_matrix = sales_2.corr()
+
+corr_matrix = sales.corr()
 corr_matrix["Item_Outlet_Sales"].sort_values(ascending=False)
 
-import seaborn as sns 
-df_corr = sales_2.corr().round(2)
+
+# In[53]:
+
+
+df_corr = sales.corr().round(2)
 sns.palplot(sns.color_palette('coolwarm', 12))
-
 fig, ax = plt.subplots(figsize=(15,15))
-
 sns.heatmap(df_corr,
             cmap = 'coolwarm',
             square = True,
             annot = True,
             linecolor = 'black',
             linewidths = 0.5)
-
-
-plt.savefig('Team3 Correlation Heatmap 2.png')
 plt.show()
-
 
 
 ## MODEL BUILDING 
